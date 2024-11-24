@@ -14,7 +14,13 @@ exports.login = async (req, res) => {
 
     // Gera um token JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ token });
+    res.status(200).json({ 
+      token, 
+      user: {
+        id: user._id,
+        email: user.email,
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -38,3 +44,38 @@ exports.register = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Rota para listar os usuários
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find(); // Obtém todos os usuários do banco de dados
+    res.status(200).json({
+      success: true,
+      message: 'Usuários listados:',
+      data: users, // Retorna a lista de usuários
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Verifica se o usuário existe
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    // Exclui o usuário
+    await user.remove();
+
+    res.status(200).json({ message: 'Usuário excluído com sucesso' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
