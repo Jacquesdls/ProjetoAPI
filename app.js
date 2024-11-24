@@ -42,3 +42,9 @@ app.get('/users', (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });
+
+//Verificação da saúde do Serviço - Render
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
+
