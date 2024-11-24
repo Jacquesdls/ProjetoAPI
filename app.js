@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 
 // Exemplo de rota de usuários
 app.get('/users', (req, res) => {
-  res.json({ success: true, message: 'Usuários listados:', data: [] });
+  res.json({ success: true, message: 'Usuários listados!', data: [] });
 });
 
 // Inicia o servidor

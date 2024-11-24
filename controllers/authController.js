@@ -6,11 +6,11 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'E-mail ou Senha Inválida' });
+    if (!user) return res.status(400).json({ message: 'E-mail Inválido' });
 
     // Verifica se a senha fornecida corresponde ao hash armazenado no banco
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'E-mail ou Senha Inválida' });
+    if (!isMatch) return res.status(400).json({ message: 'Senha Inválida' });
 
     // Gera um token JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -56,7 +56,7 @@ exports.getUsers = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Usuários listados',
+      message: 'Usuários listados:',
       data: users,  // Retorna todos os usuários
     });
   } catch (err) {
