@@ -1,21 +1,20 @@
 const jwt = require('jsonwebtoken');
 
-const authenticateToken = (req, res, next) => {
-  // Obter o token do cabeçalho da requisição (Authorization: Bearer token)
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-
-  if (!token) {
-    return res.status(401).json({ message: 'Acesso negado. Token não fornecido.' });
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Token não fornecido ou inválido' });
   }
 
+  const token = authHeader.split(' ')[1];
   try {
-    // Verificar a validade do token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verifica se o token é válido
-    req.user = decoded; // Atribui o usuário decodificado à requisição
-    next(); // Passa para o próximo middleware ou a rota
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Adiciona os dados decodificados ao req
+    next();
   } catch (err) {
-    res.status(403).json({ message: 'Token inválido.' });
+    return res.status(403).json({ message: 'Token inválido ou expirado' });
   }
 };
 
-module.exports = authenticateToken;
+module.exports = authMiddleware;
+

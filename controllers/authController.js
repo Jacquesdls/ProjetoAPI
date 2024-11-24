@@ -60,7 +60,10 @@ exports.getUsers = async (req, res) => {
       data: users,  // Retorna todos os usuários
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao buscar usuários',
+      error: err.message });
   }
 };
 
