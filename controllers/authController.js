@@ -48,6 +48,7 @@ exports.register = async (req, res) => {
 // Rota para listar os usuários
 exports.getUsers = async (req, res) => {
   try {
+
     const users = await User.find(); // Busca todos os usuários
     if (!users.length) {
       return res.status(404).json({ message: 'Nenhum usuário encontrado' });
@@ -56,12 +57,13 @@ exports.getUsers = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Usuários listados',
-      data: users,
+      data: users,  // Retorna todos os usuários
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 
 exports.deleteUser = async (req, res) => {
