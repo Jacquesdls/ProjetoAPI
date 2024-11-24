@@ -1,6 +1,6 @@
 const express = require('express');
 const { register, login, getUsers, deleteUser } = require('../controllers/authController');
-const authenticateToken = require('../middleware/authMiddleware'); // Importa o middleware
+const authenticateToken = require('../middlewares/authMiddlewares'); // Importa o middleware
 const router = express.Router();
 
 router.post('/register', register);
