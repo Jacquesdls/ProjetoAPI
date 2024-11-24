@@ -48,33 +48,32 @@ exports.register = async (req, res) => {
 // Rota para listar os usuários
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find(); // Obtém todos os usuários do banco de dados
+    const users = await User.find(); // Busca todos os usuários
+    if (!users.length) {
+      return res.status(404).json({ message: 'Nenhum usuário encontrado' });
+    }
+
     res.status(200).json({
       success: true,
-      message: 'Usuários listados:',
-      data: users, // Retorna a lista de usuários
+      message: 'Usuários listados',
+      data: users,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-exports.deleteUser = async (req, res) => {
-  const { id } = req.params;
 
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params; // Pegando o ID do usuário da URL
   try {
-    // Verifica se o usuário existe
-    const user = await User.findById(id);
+    const user = await User.findByIdAndDelete(id);
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
 
-    // Exclui o usuário
-    await user.remove();
-
-    res.status(200).json({ message: 'Usuário excluído com sucesso' });
+    res.status(200).json({ success: true, message: 'Usuário deletado com sucesso' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
