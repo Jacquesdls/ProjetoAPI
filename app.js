@@ -3,33 +3,42 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 
-dotenv.config();
+dotenv.config(); // Carregar variáveis de ambiente
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
-// Middleware
+// Middleware para processar JSON
 app.use(express.json());
+
+// Validação da configuração
+if (!process.env.MONGO_URI) {
+  console.error('Erro: MONGO_URI não definido no arquivo .env');
+  process.exit(1);
+}
 
 // Conexão com o MongoDB
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB conectado com sucesso!'))
-  .catch((err) => console.log('Erro ao conectar ao MongoDB:', err));
+  .catch((err) => {
+    console.error('Erro ao conectar ao MongoDB:', err.message);
+    process.exit(1); // Encerrar se a conexão falhar
+  });
 
 // Rotas
 app.use('/api/auth', authRoutes);
 
-// Inicia o servidor
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
-
+// Rota inicial
 app.get('/', (req, res) => {
-  res.send('API está funcionando');
+  res.json({ success: true, message: 'API está funcionando' });
 });
 
+// Exemplo de rota de usuários
 app.get('/users', (req, res) => {
-    res.json({ message: 'Usuários listados:' });
-  });
-  
+  res.json({ success: true, message: 'Usuários listados:', data: [] });
+});
 
+// Inicia o servidor
+app.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port}`);
+});

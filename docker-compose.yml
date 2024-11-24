@@ -3,7 +3,7 @@ services:
   api:
     build: .
     ports:
-      - "5000:5000"
+      - "3000:3000"
     environment:
       - MONGO_URI=mongodb://mongo:27017/BDTDL
     depends_on:
