@@ -48,38 +48,43 @@ exports.register = async (req, res) => {
 // Rota para listar os usuários
 exports.getUsers = async (req, res) => {
   try {
-
-    const users = await User.find(); // Busca todos os usuários
+    const users = await User.find().select('-password'); // Exclui senhas na resposta
     if (!users.length) {
-      return res.status(404).json({ message: 'Nenhum usuário encontrado' });
+      return res.status(404).json({ success: false, message: 'Nenhum usuário encontrado' });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Usuários listados:',
-      data: users,  // Retorna todos os usuários
+      message: `${users.length} usuário(s) encontrado(s)`,
+      data: users, // Lista de usuários
     });
   } catch (err) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: 'Erro ao buscar usuários',
-      error: err.message });
+      error: err.message,
+    });
   }
 };
-
-
 
 exports.deleteUser = async (req, res) => {
   const { id } = req.params; // Pegando o ID do usuário da URL
   try {
     const user = await User.findByIdAndDelete(id);
     if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
     }
 
-    res.status(200).json({ success: true, message: 'Usuário deletado com sucesso' });
+    res.status(200).json({
+      success: true,
+      message: 'Usuário deletado com sucesso',
+      data: user, // Detalhes do usuário excluído
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao deletar usuário',
+      error: err.message,
+    });
   }
 };
-

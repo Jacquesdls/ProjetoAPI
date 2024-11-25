@@ -33,11 +33,6 @@ app.get('/', (req, res) => {
   res.json({ success: true, message: 'API está funcionando' });
 });
 
-// // Exemplo de rota de usuários
-// app.get('/users', (req, res) => {
-//   res.json({ success: true, message: 'Usuários listados!', data: [] });
-// });
-
 // Inicia o servidor
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
