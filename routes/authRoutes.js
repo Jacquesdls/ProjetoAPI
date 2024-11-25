@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, getUsers, deleteUser } = require('../controllers/authController');
+const { register, login, getUsers, deleteUser, updateUser } = require('../controllers/authController');
 const authenticateToken = require('../middlewares/authMiddlewares'); // Importa o middleware
 const router = express.Router();
 
@@ -10,6 +10,8 @@ router.post('/login', login);
 router.get('/users', authenticateToken, getUsers);
 
 router.delete('/users/:id', authenticateToken, deleteUser);
+
+router.put('/users/:id', authenticateToken, updateUser);
 
 module.exports = router;
 

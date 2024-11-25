@@ -88,3 +88,46 @@ exports.deleteUser = async (req, res) => {
     });
   }
 };
+
+exports.updateUser = async (req, res) => {
+  const { id } = req.params; // Pega o ID do usuário da URL
+  const { email, password } = req.body; // Pega os dados enviados no corpo da requisição
+
+  try {
+    // Validação de entrada
+    if (!email && !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Nada para atualizar. Envie pelo menos um campo (email ou password).' 
+      });
+    }
+
+    // Prepara os campos a serem atualizados
+    const updateFields = {};
+    if (email) updateFields.email = email;
+    if (password) updateFields.password = await bcrypt.hash(password, 10); // Hasheia a senha, caso fornecida
+
+    // Atualiza o usuário
+    const updatedUser = await User.findByIdAndUpdate(id, updateFields, { 
+      new: true, // Retorna o documento atualizado
+      runValidators: true, // Garante que as validações do schema sejam aplicadas
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Usuário atualizado com sucesso',
+      data: updatedUser, // Retorna os detalhes atualizados do usuário
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar usuário',
+      error: err.message,
+    });
+  }
+};
+
