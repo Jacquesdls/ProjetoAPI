@@ -1,3 +1,5 @@
+import jwt_decode from 'jwt-decode';
+
 const apiUrl = 'https://projetoapi-wz4g.onrender.com/api/auth';
 let token = null;
 
@@ -73,7 +75,10 @@ async function loginWithCredentials(email, password) {
     if (response.ok) {
         // Salvar o token no localStorage
         localStorage.setItem('token', data.token);
-        showDashboard(data.user);
+
+        // Garantir que o objeto 'user' está presente na resposta
+        const user = data.user || { username: email }; // Ou usar o email se o nome de usuário não for fornecido
+        showDashboard(user);
     } else {
         showError(data.message);
     }
@@ -129,7 +134,7 @@ async function listUsers() {
 
     showLoading();
 
-    const response = await fetch('https://projetoapi-wz4g.onrender.com/users', {
+    const response = await fetch(`${apiUrl}/users`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -151,15 +156,28 @@ async function listUsers() {
     }
 }
 
+function getUserIdFromToken() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showError("Token não encontrado. Você precisa estar logado.");
+        return null;
+    }
+
+    try {
+        const decoded = jwt_decode(token);
+        return decoded.userId; // A propriedade pode variar dependendo da estrutura do token.
+    } catch (error) {
+        showError("Erro ao decodificar o token.");
+        console.error(error);
+        return null;
+    }
+}
+
+
 // Função para atualizar usuário
 async function updateUser() {
-    const token = localStorage.getItem('token');
-    const userId = getUserIdFromToken();
-
-    if (!token || !userId) {
-        showError("Você precisa estar logado para atualizar seu cadastro.");
-        return;
-    }
+    const userId = getUserIdFromToken(); // Recupera o ID do usuário do token
+    if (!userId) return; // Se não conseguir obter o userId, não faz nada
 
     const username = prompt("Digite o novo nome de usuário:");
     const email = prompt("Digite o novo email:");
@@ -174,7 +192,7 @@ async function updateUser() {
     const response = await fetch(`https://projetoapi-wz4g.onrender.com/api/auth/users/${userId}`, {
         method: 'PUT',
         headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ username, email })
@@ -191,6 +209,7 @@ async function updateUser() {
     }
 }
 
+
 // Função para deletar usuário
 async function deleteUser() {
     const token = localStorage.getItem('token');
@@ -204,7 +223,7 @@ async function deleteUser() {
     if (confirm("Tem certeza que deseja deletar sua conta?")) {
         showLoading();
 
-        const response = await fetch(`https://projetoapi-wz4g.onrender.com/api/auth/users/${userId}`, {
+        const response = await fetch(`${apiUrl}/users/${userId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -262,6 +281,7 @@ function showDashboard(user) {
     // Exibir o nome do usuário no dashboard
     document.getElementById('userName').textContent = user.username;
 }
+
 
 function hideLoading() {
     document.getElementById('loading').style.display = 'none';
