@@ -2,13 +2,18 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
+const cors = require('cors');
 
 dotenv.config(); // Carregar variáveis de ambiente
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware para processar JSON
+// Middleware para habilitar CORS
+app.use(cors());
+
+// Outras configurações do Express
 app.use(express.json());
+
 
 // Validação da configuração
 if (!process.env.MONGO_URI) {
@@ -26,7 +31,7 @@ mongoose
   });
 
 // Rotas
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', require('./routes/authRoutes'));
 
 // Rota inicial
 app.get('/', (req, res) => {
