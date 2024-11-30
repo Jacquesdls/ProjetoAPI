@@ -32,26 +32,33 @@ document.getElementById('register-form').addEventListener('submit', async (event
 });
 
 // Login de usuário
-document.getElementById('login-form').addEventListener('submit', async (event) => {
+const loginForm = document.getElementById('login-form');
+
+loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
     try {
         const response = await fetch(`${apiUrl}/login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify({ email, password }),
         });
+
         const data = await response.json();
         if (response.ok) {
-            token = data.token;
-            document.getElementById('login-message').textContent = data.message;
+            localStorage.setItem('token', data.token); // Armazenar o token no localStorage
+            alert('Login bem-sucedido!');
+            // Redireciona ou exibe a página do dashboard
         } else {
-            document.getElementById('login-message').textContent = `Erro: ${data.message}`;
+            alert(data.message); // Exibe a mensagem de erro
         }
     } catch (error) {
-        document.getElementById('login-message').textContent = 'Erro ao conectar ao servidor.';
+        console.error('Erro ao fazer login:', error);
+        alert('Erro ao tentar login');
     }
 });
 

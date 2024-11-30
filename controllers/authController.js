@@ -2,46 +2,61 @@ const bcrypt = require('bcrypt'); // Certifique-se de instalar essa biblioteca
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Login de usuário
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'E-mail Inválido' });
+      const { email, password } = req.body;
 
-    // Verifica se a senha fornecida corresponde ao hash armazenado no banco
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Senha Inválida' });
-
-    // Gera um token JWT
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ 
-      token, 
-      user: {
-        id: user._id,
-        email: user.email,
+      // Encontrar o usuário pelo email
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(400).json({ message: 'Usuário não encontrado' });
       }
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+      // Comparar a senha fornecida com a criptografada no banco de dados
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+          return res.status(400).json({ message: 'Senha incorreta' });
+      }
+
+      // Gerar o token JWT
+      const token = jwt.sign({ id: user._id }, 'secret', { expiresIn: '1h' });
+
+      res.status(200).json({
+          message: 'Login bem-sucedido!',
+          token,  // Retornar o token JWT
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Erro ao fazer login', error });
   }
 };
 
+// Registro de novo usuário
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email já está em uso' });
-    }
+      const { username, email, password } = req.body;
 
-    // Hash da senha antes de salvar no banco
-    const hashedPassword = await bcrypt.hash(password, 10); // O número 10 é o "salt rounds"
-    const newUser = new User({ email, password: hashedPassword });
-    await newUser.save();
+      // Criptografar a senha
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.status(201).json({ message: 'Usuário registrado com sucesso' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+      // Criar o novo usuário
+      const newUser = new User({
+          username,
+          email,
+          password: hashedPassword, // Armazenar senha criptografada
+      });
+
+      await newUser.save();
+
+      res.status(201).json({
+          message: 'Usuário registrado com sucesso!',
+          user: {
+              username: newUser.username,
+              email: newUser.email,
+          },
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Erro ao registrar usuário', error });
   }
 };
 
