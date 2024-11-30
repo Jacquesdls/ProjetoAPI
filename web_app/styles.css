@@ -1,69 +1,129 @@
-body {
-    font-family: Arial, sans-serif;
+/* Resetando o estilo padrão para garantir consistência */
+* {
     margin: 0;
     padding: 0;
-    background-color: #f4f4f9;
+    box-sizing: border-box;
 }
 
-.container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 50px;
+/* Definindo fontes e cores principais */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f2f4f7;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
 h1 {
-    text-align: center;
     color: #333;
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
+/* Estilo do container principal */
+.container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 350px;
+    max-width: 100%;
+}
+
+/* Input e botões */
 input[type="email"], input[type="password"], input[type="text"] {
     width: 100%;
-    padding: 10px;
-    margin: 10px 0;
+    padding: 12px;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus {
+    border-color: #4CAF50;
+    outline: none;
 }
 
 button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button:hover {
     background-color: #45a049;
 }
 
-#usersList {
-    margin-top: 20px;
+button:disabled {
+    background-color: #b6e6a6;
+    cursor: not-allowed;
+}
+
+/* Estilo dos botões secundários */
+#registerBtn {
+    margin-top: 15px;
+    background-color: #2196F3;
+}
+
+#registerBtn:hover {
+    background-color: #1976D2;
+}
+
+/* Layout do dashboard */
+#dashboardContainer {
+    width: 400px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Botões da tela de dashboard */
+button {
+    margin-bottom: 10px;
 }
 
 #usersList ul {
     list-style-type: none;
     padding: 0;
+    margin-top: 20px;
+    width: 100%;
 }
 
 #usersList li {
-    padding: 8px;
-    margin-bottom: 8px;
     background-color: #e7f4e7;
-    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
 }
 
 #errorMsg {
-    margin-top: 10px;
-    text-align: center;
+    color: red;
+    margin-top: 20px;
+    font-size: 1.1rem;
 }
 
+/* Estilo do loading */
 #loading {
-    text-align: center;
+    font-size: 1.2rem;
+    color: #4CAF50;
     margin-top: 20px;
+    display: none;
+    text-align: center;
 }
