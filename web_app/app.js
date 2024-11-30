@@ -1,4 +1,5 @@
-import jwt_decode from 'jwt-decode';
+import { decode as jwt_decode } from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js';
+
 
 const apiUrl = 'https://projetoapi-wz4g.onrender.com/api/auth';
 let token = null;
@@ -189,7 +190,7 @@ async function updateUser() {
 
     showLoading();
 
-    const response = await fetch(`https://projetoapi-wz4g.onrender.com/api/auth/users/${userId}`, {
+    const response = await fetch(`${apiUrl}/users/${userId}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -248,40 +249,10 @@ function logout() {
     showLogin();
 }
 
-// Função para obter o ID do usuário do token
-function getUserIdFromToken() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        showError("Token não encontrado.");
-        return null;
-    }
-
-    const decoded = jwt_decode(token); // Decodifica o token
-    return decoded.userId; // Supondo que o ID do usuário esteja no campo userId do payload
-}
-
 // Funções de UI
 function showLoading() {
     document.getElementById('loading').style.display = 'block';
 }
-
-// Função para exibir a tela de login
-function showLogin() {
-    document.getElementById('loginContainer').style.display = 'block';
-    document.getElementById('registerContainer').style.display = 'none';
-    document.getElementById('dashboardContainer').style.display = 'none';
-}
-
-// Função para exibir o dashboard
-function showDashboard(user) {
-    document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('registerContainer').style.display = 'none';
-    document.getElementById('dashboardContainer').style.display = 'block';
-
-    // Exibir o nome do usuário no dashboard
-    document.getElementById('userName').textContent = user.username;
-}
-
 
 function hideLoading() {
     document.getElementById('loading').style.display = 'none';
