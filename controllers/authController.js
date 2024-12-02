@@ -38,8 +38,7 @@ exports.register = async (req, res) => {
       const { username, email, password } = req.body;
 
       // Criptografa a senha
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       // Criar o novo usuário
       const newUser = new User({

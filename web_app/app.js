@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-
 // Função para obter o ID do usuário do token JWT
 function getUserIdFromToken() {
     const token = localStorage.getItem('token');
@@ -34,7 +32,7 @@ function showDashboard(user) {
     document.getElementById('registerContainer').style.display = 'none';
     document.getElementById('dashboardContainer').style.display = 'block';
 
-    document.getElementById('userName').textContent = user.username;
+    document.getElementById('userName').textContent = user.username || "Usuário não identificado";
 }
 
 // Função para login
@@ -63,8 +61,9 @@ async function login(event) {
     if (response.ok) {
         // Salvar o token no localStorage para uso posterior
         localStorage.setItem('token', data.token);
+        const user = data.user || { username: "Usuário"};
         alert(data.message); // Mostrar mensagem de sucesso
-        showDashboard(); // Redirecionar para o dashboard
+        showDashboard(user); // Redirecionar para o dashboard
     } else {
         showError(data.message); // Mostrar mensagem de erro
     }
@@ -112,31 +111,29 @@ async function register(event) {
         return;
     }
 
-    // Criptografar a senha antes de enviá-la
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     showLoading();
 
-    const response = await fetch(`${apiUrl}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password: hashedPassword })
-    });
-
-    const data = await response.json();
-    hideLoading();
-
-    if (response.ok) {
-        alert("Usuário registrado com sucesso!");
-
-        // Voltar para a tela de login
-        showLogin();
-
-        // Tentar fazer login automaticamente
-        loginWithCredentials(email, password);
-    } else {
-        showErrorRegister(data.message);
-    }
+    try {
+        const response = await fetch(`${apiUrl}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password }),
+        });
+    
+        const data = await response.json();
+        hideLoading();
+    
+        if (response.ok) {
+            alert("Usuário registrado com sucesso!");
+            showLogin();
+            loginWithCredentials(email, password);
+        } else {
+            showErrorRegister(data.message);
+        }
+    } catch (error) {
+        hideLoading();
+        showErrorRegister("Erro de conexão. Tente novamente.");
+    }    
 }
 
 
@@ -150,34 +147,48 @@ async function listUsers() {
 
     showLoading();
 
-    const response = await fetch(`${apiUrl}/users`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
-    const data = await response.json();
-    hideLoading();
-
-    if (response.ok) {
-        let listHtml = '<ul>';
-        data.users.forEach(user => {
-            listHtml += `<li>${user.username} - ${user.email}</li>`;
+    try {
+        const response = await fetch(`${apiUrl}/users`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
         });
-        listHtml += '</ul>';
-        document.getElementById('usersList').innerHTML = listHtml;
-    } else {
-        showError(data.message);
+
+        const data = await response.json();
+        hideLoading();
+
+        if (response.ok) {
+            if (data.data && data.data.length > 0) {
+                // Gerar a lista de usuários
+                let userListHTML = '<ul>';
+                data.data.forEach(user => {
+                    userListHTML += `<li><strong>ID:</strong> ${user._id} <br> <strong>Nome:</strong> ${user.username} <br> <strong>Email:</strong> ${user.email}</li>`;
+                });
+                userListHTML += '</ul>';
+                document.getElementById('usersList').innerHTML = userListHTML;
+            } else {
+                document.getElementById('usersList').innerHTML = "<p>Nenhum usuário encontrado.</p>";
+            }
+        } else {
+            showError(data.message || "Erro ao buscar usuários.");
+        }
+    } catch (error) {
+        hideLoading();
+        showError("Erro ao carregar lista de usuários: " + error.message);
     }
 }
+
 
 
 // Função para atualizar usuário
 async function updateUser() {
     const userId = getUserIdFromToken(); // Recupera o ID do usuário do token
-    if (!userId) return; // Se não conseguir obter o userId, não faz nada
-
+    if (!userId) {
+        showError("ID do usuário não encontrado.");
+        return;
+    }
     const username = prompt("Digite o novo nome de usuário:");
     const email = prompt("Digite o novo email:");
 
@@ -202,7 +213,8 @@ async function updateUser() {
 
     if (response.ok) {
         alert("Usuário atualizado com sucesso!");
-        showDashboard();
+        const updatedUser = data.user;
+        showDashboard(updatedUser);
     } else {
         showError(data.message);
     }
