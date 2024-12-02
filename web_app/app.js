@@ -1,4 +1,12 @@
-import { decode as jwt_decode } from 'https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js';
+// Função para obter o ID do usuário do token JWT
+function getUserIdFromToken() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        throw new Error('Token não encontrado.');
+    }
+    const decoded = jwt_decode(token); // Use jwt_decode diretamente
+    return decoded.id; // Certifique-se de que 'id' é o campo correto no payload do token
+}
 
 
 const apiUrl = 'https://projetoapi-wz4g.onrender.com/api/auth';
@@ -43,7 +51,7 @@ async function login(event) {
 
     const response = await fetch(`${apiUrl}/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type':'application/json' },
         body: JSON.stringify({ email, password })
     });
 
@@ -154,23 +162,6 @@ async function listUsers() {
         document.getElementById('usersList').innerHTML = listHtml;
     } else {
         showError(data.message);
-    }
-}
-
-function getUserIdFromToken() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        showError("Token não encontrado. Você precisa estar logado.");
-        return null;
-    }
-
-    try {
-        const decoded = jwt_decode(token);
-        return decoded.userId; // A propriedade pode variar dependendo da estrutura do token.
-    } catch (error) {
-        showError("Erro ao decodificar o token.");
-        console.error(error);
-        return null;
     }
 }
 

@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
       }
 
       // Gerar o token JWT
-      const token = jwt.sign({ id: user._id }, 'secret', { expiresIn: '1h' });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
       res.status(200).json({
           message: 'Login bem-sucedido!',
@@ -36,14 +36,15 @@ exports.register = async (req, res) => {
   try {
       const { username, email, password } = req.body;
 
-      // Criptografar a senha
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // Criptografa a senha
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
 
       // Criar o novo usuário
       const newUser = new User({
           username,
           email,
-          password: hashedPassword, // Armazenar senha criptografada
+          password: hashedPassword // Armazenar senha criptografada
       });
 
       await newUser.save();
