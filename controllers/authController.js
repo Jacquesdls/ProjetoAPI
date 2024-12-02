@@ -6,6 +6,7 @@ const User = require('../models/User');
 exports.login = async (req, res) => {
   try {
       const { email, password } = req.body;
+      console.log(req.body);
 
       // Encontrar o usuário pelo email
       const user = await User.findOne({ email });

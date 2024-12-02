@@ -51,10 +51,11 @@ async function login(event) {
 
     const response = await fetch(`${apiUrl}/login`, {
         method: 'POST',
-        headers: { 'Content-Type':'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
+        
     });
-
+    
     const data = await response.json();
     hideLoading();
 
