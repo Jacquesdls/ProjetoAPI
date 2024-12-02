@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs';
+
 // Função para obter o ID do usuário do token JWT
 function getUserIdFromToken() {
     const token = localStorage.getItem('token');
@@ -52,21 +54,22 @@ async function login(event) {
     const response = await fetch(`${apiUrl}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-        
+        body: JSON.stringify({ email, password }),
     });
-    
+
     const data = await response.json();
     hideLoading();
 
     if (response.ok) {
-        // Salvar o token no localStorage para uso futuro
+        // Salvar o token no localStorage para uso posterior
         localStorage.setItem('token', data.token);
-        showDashboard(data.user);
+        alert(data.message); // Mostrar mensagem de sucesso
+        showDashboard(); // Redirecionar para o dashboard
     } else {
-        showError(data.message);
+        showError(data.message); // Mostrar mensagem de erro
     }
 }
+
 
 
 // Função para login com as credenciais (email e senha)
@@ -109,12 +112,15 @@ async function register(event) {
         return;
     }
 
+    // Criptografar a senha antes de enviá-la
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     showLoading();
 
     const response = await fetch(`${apiUrl}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password })
+        body: JSON.stringify({ username, email, password: hashedPassword })
     });
 
     const data = await response.json();
