@@ -47,29 +47,34 @@ async function login(event) {
         return;
     }
 
-    showLoading();
+    try {
+        showLoading();
 
-    const response = await fetch(`${apiUrl}/login`, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json', 
-        },
-        body: JSON.stringify({ email, password }),
-    });
+        const response = await fetch(`${apiUrl}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
 
-    const data = await response.json();
-    hideLoading();
+        const data = await response.json();
+        hideLoading();
 
-    if (response.ok) {
-        // Salvar o token no localStorage para uso posterior
-        localStorage.setItem('token', data.token);
-        const user = data.user || { username: "Usuário"};
-        alert(data.message); // Mostrar mensagem de sucesso
-        showDashboard(user); // Redirecionar para o dashboard
-    } else {
-        showError(data.message); // Mostrar mensagem de erro
+        if (response.ok) {
+            // Salvar o token no localStorage para uso posterior
+            localStorage.setItem('token', data.token);
+            const user = data.user || { username: "Usuário" };
+            alert(data.message); // Mostrar mensagem de sucesso
+            showDashboard(user); // Redirecionar para o dashboard
+        } else {
+            showError(data.message); // Mostrar mensagem de erro
+        }
+    } catch (error) {
+        hideLoading();
+        console.error("Erro durante o login:", error);
+        showError("Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.");
     }
 }
+
 
 
 
@@ -128,7 +133,7 @@ async function register(event) {
         if (response.ok) {
             alert("Usuário registrado com sucesso!");
             showLogin();
-            loginWithCredentials(email, password);
+            // loginWithCredentials(email, password);
         } else {
             showErrorRegister(data.message);
         }

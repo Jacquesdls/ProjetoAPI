@@ -9,7 +9,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware para habilitar CORS
-app.use(cors());
+app.use(cors(corsOptions));
+
+const corsOptions = {
+  origin: 'http://localhost:3000', // Altere para o domínio do seu frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 
 // Outras configurações do Express
 app.use(express.json());
