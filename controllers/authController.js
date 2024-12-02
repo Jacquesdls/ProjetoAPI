@@ -5,32 +5,41 @@ const User = require('../models/User');
 // Login de usuário
 exports.login = async (req, res) => {
   try {
-      const { email, password } = req.body;
-      console.log(req.body);
+    const { email, password } = req.body;
 
-      // Encontrar o usuário pelo email
-      const user = await User.findOne({ email });
-      if (!user) {
-          return res.status(400).json({ message: 'Usuário não encontrado' });
-      }
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email e senha são obrigatórios' });
+    }
 
-      // Comparar a senha fornecida com a criptografada no banco de dados
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-          return res.status(400).json({ message: 'Senha incorreta' });
-      }
+    // Verificar se o email é válido (opcional)
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Email inválido' });
+    }
 
-      // Gerar o token JWT
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Usuário não encontrado' });
+    }
 
-      res.status(200).json({
-          message: 'Login bem-sucedido!',
-          token,  // Retornar o token JWT
-      });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: 'Senha incorreta' });
+    }
+
+    // Gerar o token JWT
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({
+      message: 'Login bem-sucedido!',
+      token,
+    });
   } catch (error) {
-      res.status(500).json({ message: 'Erro ao fazer login', error });
+    console.error('Erro no login:', error);
+    res.status(500).json({ message: 'Erro ao fazer login', error: error.message });
   }
 };
+
 
 // Registro de novo usuário
 exports.register = async (req, res) => {
